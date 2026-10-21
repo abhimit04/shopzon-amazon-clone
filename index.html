@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shopzon — Online Shopping</title>
+<style>
+  :root{
+    --nav:#131921; --nav2:#232f3e; --accent:#febd69; --orange:#ff9900;
+    --btn:#ffd814; --btn-b:#fcd200; --btn2:#ffa41c; --link:#007185; --bg:#e3e6e6;
+    --price:#0f1111; --deal:#cc0c39;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Amazon Ember",Arial,Helvetica,sans-serif;background:var(--bg);color:#0f1111;font-size:14px}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+
+  /* ---------- Header ---------- */
+  header{background:var(--nav);color:#fff;display:flex;align-items:center;gap:6px;padding:6px 10px;position:sticky;top:0;z-index:50}
+  .nav-item{padding:6px 8px;border:1px solid transparent;border-radius:2px;line-height:1.1;white-space:nowrap;cursor:pointer}
+  .nav-item:hover{border-color:#fff}
+  .logo{font-size:24px;font-weight:700;letter-spacing:-1px;position:relative;padding-bottom:10px}
+  .logo span{color:var(--orange)}
+  .logo svg{position:absolute;left:10px;bottom:2px}
+  .small{font-size:12px;color:#ccc}
+  .bold{font-weight:700;font-size:14px}
+  .search{flex:1;display:flex;height:40px;border-radius:4px;overflow:hidden;min-width:200px}
+  .search:focus-within{box-shadow:0 0 0 3px var(--orange)}
+  .search select{background:#e6e6e6;border:none;padding:0 6px;font-size:12px;color:#555;border-right:1px solid #cdcdcd;max-width:120px}
+  .search input{flex:1;border:none;padding:0 10px;font-size:15px;outline:none}
+  .search button{background:var(--accent);border:none;width:45px;display:grid;place-items:center}
+  .search button:hover{background:#f3a847}
+  .cart{display:flex;align-items:flex-end;gap:2px;position:relative}
+  .cart-count{position:absolute;top:0;left:18px;color:var(--orange);font-weight:700;font-size:16px;width:20px;text-align:center}
+  .subnav{background:var(--nav2);color:#fff;display:flex;gap:2px;padding:2px 10px;overflow-x:auto;font-size:14px}
+  .subnav a{padding:7px 8px;border:1px solid transparent;white-space:nowrap}
+  .subnav a:hover{border-color:#fff}
+  .subnav a.active{border-color:#fff}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;height:600px;overflow:hidden;max-width:1500px;margin:0 auto}
+  .slides{display:flex;height:100%;transition:transform .6s ease}
+  .slide{min-width:100%;height:100%;display:flex;align-items:flex-start;justify-content:center;padding-top:60px;color:#fff;text-align:center}
+  .slide h2{font-size:44px;text-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .slide p{font-size:20px;margin-top:8px}
+  .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(to bottom,transparent,var(--bg));pointer-events:none}
+  .hero-btn{position:absolute;top:0;height:250px;width:80px;background:none;border:2px solid transparent;color:#fff;font-size:48px;z-index:2}
+  .hero-btn:focus,.hero-btn:hover{border-color:#fff;outline:none}
+  .hero-btn.prev{left:0}.hero-btn.next{right:0}
+
+  /* ---------- Content ---------- */
+  main{max-width:1500px;margin:-340px auto 0;position:relative;z-index:3;padding:0 20px 30px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .card{background:#fff;padding:20px;display:flex;flex-direction:column}
+  .card h3{font-size:21px;margin-bottom:10px}
+  .card .grid4{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1}
+  .card .grid4 div{font-size:12px;cursor:pointer}
+  .tile{background:#f7f7f7;aspect-ratio:1;display:grid;place-items:center;font-size:48px;margin-bottom:4px}
+  .card .grid4 .tile{font-size:56px}
+  .lbl{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .big{flex:1;display:grid;place-items:center;font-size:120px;background:#f7f7f7;margin-bottom:10px;min-height:260px}
+  .card .more{color:var(--link);font-size:13px;margin-top:12px;cursor:pointer}
+  .card .more:hover{color:#c7511f;text-decoration:underline}
+
+  .section{background:#fff;margin-top:20px;padding:20px}
+  .section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+  .section-head h2{font-size:21px}
+  .section-head a{color:var(--link);font-size:13px}
+  .row{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scroll-behavior:smooth}
+  .row .deal{min-width:200px;cursor:pointer}
+  .row .deal .tile{font-size:70px;height:200px;aspect-ratio:auto}
+  .badge{display:inline-block;background:var(--deal);color:#fff;font-size:12px;font-weight:700;padding:4px 6px;border-radius:2px;margin:6px 6px 0 0}
+  .deal-txt{color:var(--deal);font-size:12px;font-weight:700}
+
+  /* ---------- Products ---------- */
+  .toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  .toolbar select{padding:5px 8px;border-radius:8px;border:1px solid #d5d9d9;background:#f0f2f2;box-shadow:0 2px 5px rgba(15,17,17,.15)}
+  .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+  .product{border:1px solid #e7e7e7;border-radius:4px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:box-shadow .2s}
+  .product:hover{box-shadow:0 4px 14px rgba(0,0,0,.12)}
+  .product .img{height:200px;display:grid;place-items:center;font-size:96px;background:#f7f8f8;border-radius:4px;cursor:pointer}
+  .product .title{font-size:15px;line-height:1.3;cursor:pointer;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .product .title:hover{color:#c7511f}
+  .stars{color:#de7921;font-size:15px;letter-spacing:1px}
+  .reviews{color:var(--link);font-size:13px;margin-left:4px}
+  .price{font-size:26px;font-weight:400}
+  .price sup{font-size:13px;position:relative;top:-2px}
+  .list-price{color:#565959;font-size:12px}
+  .list-price s{margin-left:2px}
+  .prime{color:#00a8e1;font-weight:700;font-style:italic;font-size:13px}
+  .prime b{color:var(--orange);font-style:normal}
+  .delivery{font-size:13px;color:#565959}
+  .delivery b{color:#0f1111}
+  .btn{background:var(--btn);border:1px solid var(--btn-b);border-radius:20px;padding:8px 10px;font-size:13px;box-shadow:0 2px 5px rgba(213,217,217,.5)}
+  .btn:hover{background:#f7ca00}
+  .btn.alt{background:var(--btn2);border-color:#ff8f00}
+  .btn.alt:hover{background:#fa8900}
+  .product .btn{margin-top:auto}
+  .empty{padding:40px;text-align:center;color:#565959;grid-column:1/-1}
+
+  /* ---------- Cart drawer ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s;z-index:90}
+  .overlay.show{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:400px;max-width:100%;background:#fff;z-index:100;transform:translateX(100%);transition:transform .3s;display:flex;flex-direction:column}
+  .drawer.open{transform:none}
+  .drawer-head{background:var(--nav2);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+  .drawer-head h2{font-size:20px}
+  .drawer-head button{background:none;border:none;color:#fff;font-size:26px}
+  .drawer-body{flex:1;overflow-y:auto;padding:10px 20px}
+  .ci{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #ddd}
+  .ci .tile{width:80px;height:80px;font-size:44px;aspect-ratio:auto;flex-shrink:0;margin:0}
+  .ci .info{flex:1;font-size:13px}
+  .ci .info .t{font-size:14px;margin-bottom:4px}
+  .ci .info .p{font-weight:700;font-size:16px}
+  .instock{color:#007600;font-size:12px}
+  .qty{display:inline-flex;align-items:center;border:3px solid var(--btn);border-radius:20px;margin-top:6px;overflow:hidden}
+  .qty button{background:none;border:none;width:28px;height:24px;font-size:16px}
+  .qty span{min-width:24px;text-align:center;font-weight:700}
+  .del{color:var(--link);background:none;border:none;font-size:12px;margin-left:10px}
+  .drawer-foot{padding:16px 20px;border-top:1px solid #ddd;background:#f7f7f7}
+  .subtotal{font-size:18px;margin-bottom:10px}
+  .drawer-foot .btn{width:100%;font-size:14px}
+  .free-ship{font-size:12px;color:#007600;margin-bottom:8px}
+
+  /* ---------- Modal ---------- */
+  .modal{position:fixed;inset:0;display:grid;place-items:center;z-index:110;pointer-events:none;opacity:0;transition:opacity .2s}
+  .modal.show{opacity:1;pointer-events:auto}
+  .modal-box{background:#fff;border-radius:8px;width:min(900px,94vw);max-height:90vh;overflow:auto;display:grid;grid-template-columns:1fr 1.2fr;gap:24px;padding:28px;position:relative}
+  .modal-box .close{position:absolute;right:14px;top:8px;background:none;border:none;font-size:28px}
+  .modal-box .bigimg{background:#f7f8f8;display:grid;place-items:center;font-size:180px;border-radius:6px;min-height:340px}
+  .modal-box h2{font-size:22px;font-weight:400;line-height:1.3}
+  .modal-box hr{border:none;border-top:1px solid #ddd;margin:10px 0}
+  .modal-box ul{padding-left:18px;font-size:14px;line-height:1.6}
+  .modal-actions{display:flex;flex-direction:column;gap:8px;margin-top:14px;max-width:260px}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#067d62;color:#fff;padding:12px 20px;border-radius:6px;font-weight:700;transition:transform .3s;z-index:120}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  /* ---------- Footer ---------- */
+  .back-top{background:#37475a;color:#fff;text-align:center;padding:15px;font-size:13px;cursor:pointer;display:block;width:100%;border:none}
+  .back-top:hover{background:#485769}
+  footer{background:var(--nav2);color:#ddd;padding:40px 20px}
+  .foot-cols{display:flex;justify-content:center;gap:90px;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+  .foot-cols h4{color:#fff;font-size:16px;margin-bottom:8px}
+  .foot-cols a{display:block;font-size:14px;line-height:2}
+  .foot-cols a:hover{text-decoration:underline}
+  .foot-bottom{background:var(--nav);color:#ddd;text-align:center;font-size:12px;padding:30px 10px}
+  .foot-bottom .logo{display:inline-block;color:#fff;margin-bottom:10px}
+
+  @media (max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:760px){
+    header{flex-wrap:wrap}
+    .search{order:10;flex-basis:100%}
+    .hide-sm{display:none}
+    .cards{grid-template-columns:1fr}
+    .hero{height:400px}.slide h2{font-size:28px}
+    main{margin-top:-220px}
+    .modal-box{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="nav-item logo" href="#" onclick="resetFilters();return false;">shopzon<span>.in</span>
+    <svg width="60" height="10" viewBox="0 0 60 10"><path d="M2 2 Q30 12 56 2" stroke="#ff9900" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M50 0 L57 2 L53 7" stroke="#ff9900" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+  </a>
+  <div class="nav-item hide-sm" style="display:flex;align-items:flex-end;gap:2px">
+    <svg width="16" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
+    <div><div class="small">Deliver to Abhishek</div><div class="bold">Mumbai 400001</div></div>
+  </div>
+  <form class="search" onsubmit="event.preventDefault();applyFilters();document.getElementById('shop').scrollIntoView({behavior:'smooth'})">
+    <select id="searchCat"><option value="all">All</option></select>
+    <input id="searchInput" type="text" placeholder="Search Shopzon.in" autocomplete="off" />
+    <button type="submit" aria-label="Search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg></button>
+  </form>
+  <div class="nav-item hide-sm"><div class="small" style="color:#fff">EN</div><div class="bold">🇮🇳 ▾</div></div>
+  <div class="nav-item hide-sm"><div class="small" style="color:#fff">Hello, Abhishek</div><div class="bold">Account &amp; Lists ▾</div></div>
+  <div class="nav-item hide-sm"><div class="small" style="color:#fff">Returns</div><div class="bold">&amp; Orders</div></div>
+  <div class="nav-item cart" onclick="openCart()">
+    <svg width="40" height="34" viewBox="0 0 40 34" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"><path d="M2 4h6l5 18h20l4-13H11"/><circle cx="15" cy="29" r="2.5" fill="#fff"/><circle cx="30" cy="29" r="2.5" fill="#fff"/></svg>
+    <span class="cart-count" id="cartCount">0</span>
+    <span class="bold">Cart</span>
+  </div>
+</header>
+<nav class="subnav" id="subnav">
+  <a href="#" data-cat="all">☰ All</a>
+</nav>
+
+<section class="hero">
+  <button class="hero-btn prev" aria-label="Previous" onclick="moveSlide(-1)">‹</button>
+  <div class="slides" id="slides">
+    <div class="slide" style="background:linear-gradient(135deg,#ff9a56,#ff5f6d)"><div><h2>Great Indian Festival</h2><p>Up to 70% off on electronics, fashion &amp; more</p></div></div>
+    <div class="slide" style="background:linear-gradient(135deg,#4facfe,#6a5af9)"><div><h2>Latest Smartphones</h2><p>No-cost EMI &amp; exchange offers</p></div></div>
+    <div class="slide" style="background:linear-gradient(135deg,#43e97b,#1aa37a)"><div><h2>Home &amp; Kitchen Fest</h2><p>Starting ₹99 | Deals refreshed daily</p></div></div>
+    <div class="slide" style="background:linear-gradient(135deg,#f7971e,#d4145a)"><div><h2>Fashion Sale</h2><p>Min. 50% off top brands</p></div></div>
+  </div>
+  <button class="hero-btn next" aria-label="Next" onclick="moveSlide(1)">›</button>
+</section>
+
+<main>
+  <div class="cards" id="cards"></div>
+
+  <section class="section">
+    <div class="section-head"><h2>Today's Deals</h2><a href="#shop">See all deals</a></div>
+    <div class="row" id="deals"></div>
+  </section>
+
+  <section class="section" id="shop">
+    <div class="toolbar">
+      <div class="section-head" style="margin:0"><h2 id="resultsTitle">All Products</h2><span id="resultsCount" style="color:#565959"></span></div>
+      <label>Sort by:
+        <select id="sort" onchange="applyFilters()">
+          <option value="featured">Featured</option>
+          <option value="low">Price: Low to High</option>
+          <option value="high">Price: High to Low</option>
+          <option value="rating">Avg. Customer Review</option>
+        </select>
+      </label>
+    </div>
+    <div class="products" id="products"></div>
+  </section>
+</main>
+
+<button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">Back to top</button>
+<footer>
+  <div class="foot-cols">
+    <div><h4>Get to Know Us</h4><a href="#">About Us</a><a href="#">Careers</a><a href="#">Press Releases</a><a href="#">Shopzon Science</a></div>
+    <div><h4>Connect with Us</h4><a href="#">Facebook</a><a href="#">Twitter</a><a href="#">Instagram</a></div>
+    <div><h4>Make Money with Us</h4><a href="#">Sell on Shopzon</a><a href="#">Become an Affiliate</a><a href="#">Advertise Your Products</a><a href="#">Shopzon Pay on Merchants</a></div>
+    <div><h4>Let Us Help You</h4><a href="#">Your Account</a><a href="#">Returns Centre</a><a href="#">100% Purchase Protection</a><a href="#">Help</a></div>
+  </div>
+</footer>
+<div class="foot-bottom"><div class="logo">shopzon<span style="color:var(--orange)">.in</span></div><div>Conditions of Use &amp; Sale &nbsp; Privacy Notice &nbsp; Interest-Based Ads<br><br>© 1996-2026, Shopzon.com, Inc. or its affiliates (demo)</div></div>
+
+<!-- Cart drawer -->
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+<aside class="drawer" id="drawer" aria-label="Shopping cart">
+  <div class="drawer-head"><h2>Shopping Cart</h2><button onclick="closeAll()" aria-label="Close">×</button></div>
+  <div class="drawer-body" id="cartItems"></div>
+  <div class="drawer-foot" id="cartFoot"></div>
+</aside>
+
+<!-- Product modal -->
+<div class="modal" id="modal" onclick="if(event.target===this)closeAll()"><div class="modal-box" id="modalBox"></div></div>
+<div class="toast" id="toast">✓ Added to Cart</div>
+
+<script>
+const PRODUCTS = [
+  {id:1,cat:"Electronics",e:"📱",t:"Galaxy Nova 5G (Midnight Black, 8GB RAM, 128GB Storage) | 50MP Camera | 5000mAh Battery",p:18999,lp:24999,r:4.3,n:12873,prime:true,deal:true},
+  {id:2,cat:"Electronics",e:"💻",t:"UltraBook Pro 14\" Laptop — Intel Core i7, 16GB RAM, 512GB SSD, Windows 11, Backlit Keyboard",p:64990,lp:82990,r:4.5,n:3421,prime:true,deal:true},
+  {id:3,cat:"Electronics",e:"🎧",t:"SoundWave Wireless Over-Ear Headphones with Active Noise Cancellation, 40hr Battery",p:3499,lp:7990,r:4.2,n:28750,prime:true,deal:true},
+  {id:4,cat:"Electronics",e:"⌚",t:"FitPulse Smartwatch with 1.96\" AMOLED Display, Bluetooth Calling, SpO2 & Heart Rate",p:2299,lp:5999,r:4.0,n:45110,prime:true},
+  {id:5,cat:"Electronics",e:"📷",t:"Mirrorless Digital Camera 24.2MP with 18-55mm Lens Kit, 4K Video",p:52990,lp:59990,r:4.6,n:1802,prime:false},
+  {id:6,cat:"Electronics",e:"🔊",t:"Echo-style Smart Speaker with Voice Assistant — Charcoal",p:4499,lp:5499,r:4.4,n:98012,prime:true,deal:true},
+  {id:7,cat:"Home & Kitchen",e:"☕",t:"BrewMaster Drip Coffee Maker, 1.2L, Keep-Warm Function, Black",p:2799,lp:3999,r:4.1,n:5642,prime:true},
+  {id:8,cat:"Home & Kitchen",e:"🍳",t:"Non-Stick Cookware Set, 5 Pieces, Induction Base, Granite Finish",p:1899,lp:3500,r:4.3,n:11203,prime:true,deal:true},
+  {id:9,cat:"Home & Kitchen",e:"🛋️",t:"Modern 3-Seater Fabric Sofa with Wooden Legs — Grey",p:21999,lp:34999,r:4.0,n:812,prime:false},
+  {id:10,cat:"Home & Kitchen",e:"💡",t:"Smart LED Bulb 9W, Wi-Fi, 16 Million Colours, Works with Voice Assistants (Pack of 2)",p:899,lp:1999,r:4.2,n:23410,prime:true},
+  {id:11,cat:"Fashion",e:"👟",t:"Men's Running Shoes — Lightweight Mesh, Cushioned Sole, Navy Blue",p:1499,lp:3499,r:4.1,n:7820,prime:true,deal:true},
+  {id:12,cat:"Fashion",e:"👜",t:"Women's Leather Handbag with Detachable Strap — Tan",p:1799,lp:4299,r:4.2,n:3104,prime:true},
+  {id:13,cat:"Fashion",e:"🕶️",t:"Polarized Aviator Sunglasses with UV400 Protection, Unisex",p:699,lp:1999,r:3.9,n:15420,prime:true},
+  {id:14,cat:"Fashion",e:"👕",t:"Cotton Crew Neck T-Shirt, Regular Fit (Pack of 3) — Assorted",p:799,lp:1599,r:4.0,n:31877,prime:true},
+  {id:15,cat:"Books",e:"📚",t:"Atomic Habits: Easy & Proven Way to Build Good Habits & Break Bad Ones (Paperback)",p:399,lp:799,r:4.7,n:120340,prime:true,deal:true},
+  {id:16,cat:"Books",e:"📖",t:"The Psychology of Money — Timeless Lessons on Wealth, Greed, and Happiness",p:299,lp:399,r:4.6,n:88761,prime:true},
+  {id:17,cat:"Toys & Games",e:"🧸",t:"Plush Teddy Bear, 3 Feet, Super Soft — Brown",p:999,lp:1999,r:4.4,n:6510,prime:false},
+  {id:18,cat:"Toys & Games",e:"🎮",t:"Next-Gen Gaming Console with Wireless Controller, 1TB",p:49990,lp:54990,r:4.8,n:21003,prime:true,deal:true},
+  {id:19,cat:"Toys & Games",e:"🧩",t:"1000-Piece Jigsaw Puzzle — World Landmarks",p:549,lp:899,r:4.3,n:2145,prime:true},
+  {id:25,cat:"Toys & Games",e:"🚂",t:"Wooden Train Set with 40 Pieces & Tracks for Kids 3+",p:1299,lp:2499,r:4.5,n:3870,prime:true},
+  {id:20,cat:"Sports",e:"🚴",t:"Mountain Bike 27.5\" with 21-Speed Shimano Gears & Disc Brakes",p:14999,lp:22999,r:4.2,n:1320,prime:false},
+  {id:21,cat:"Sports",e:"🏏",t:"English Willow Cricket Bat, Full Size, with Cover",p:3299,lp:4999,r:4.3,n:980,prime:true},
+  {id:22,cat:"Sports",e:"🧘",t:"Anti-Skid Yoga Mat 6mm with Carry Strap — Purple",p:499,lp:1299,r:4.1,n:42190,prime:true,deal:true},
+  {id:23,cat:"Beauty",e:"🧴",t:"Vitamin C Face Serum 30ml for Glowing Skin, All Skin Types",p:549,lp:699,r:4.0,n:18302,prime:true},
+  {id:24,cat:"Beauty",e:"💄",t:"Matte Liquid Lipstick, Long-Lasting, Set of 4 Shades",p:449,lp:999,r:4.1,n:9870,prime:true},
+];
+const CATS = [...new Set(PRODUCTS.map(p=>p.cat))];
+const fmt = n => n.toLocaleString("en-IN");
+const $ = id => document.getElementById(id);
+
+let cart = JSON.parse(localStorage.getItem("shopzon-cart") || "{}");
+let activeCat = "all";
+
+function stars(r){
+  const full = Math.floor(r), half = r - full >= .5;
+  return "★".repeat(full) + (half ? "⯪" : "") + "☆".repeat(5 - full - (half?1:0));
+}
+function priceHTML(p){
+  return `<span class="price"><sup>₹</sup>${fmt(p)}</span>`;
+}
+function off(p){ return Math.round((1 - p.p / p.lp) * 100); }
+function deliveryDate(days){
+  const d = new Date(); d.setDate(d.getDate()+days);
+  return d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});
+}
+
+/* --- Init nav / selects / cards --- */
+function init(){
+  const sel = $("searchCat"), nav = $("subnav");
+  CATS.forEach(c=>{
+    sel.insertAdjacentHTML("beforeend",`<option>${c}</option>`);
+    nav.insertAdjacentHTML("beforeend",`<a href="#" data-cat="${c}">${c}</a>`);
+  });
+  ["Today's Deals","Customer Service","Prime","Gift Cards","Sell"].forEach(x=>nav.insertAdjacentHTML("beforeend",`<a href="#">${x}</a>`));
+  nav.addEventListener("click",e=>{
+    const a = e.target.closest("a[data-cat]"); if(!a) return;
+    e.preventDefault(); setCategory(a.dataset.cat);
+  });
+  sel.addEventListener("change",()=>{ activeCat = sel.value; applyFilters(); });
+  $("searchInput").addEventListener("input",applyFilters);
+
+  const cardDefs = [
+    {h:"Up to 60% off | Electronics",cat:"Electronics",four:true},
+    {h:"Revamp your home in style",cat:"Home & Kitchen",four:true},
+    {h:"Bestselling books",cat:"Books",big:"📚"},
+    {h:"Top picks in Fashion",cat:"Fashion",four:true},
+    {h:"Play time! Toys & Games",cat:"Toys & Games",four:true},
+    {h:"Get fit at home",cat:"Sports",big:"🏋️"},
+    {h:"Beauty picks for you",cat:"Beauty",big:"💅"},
+    {h:"Sign in for the best experience",signin:true},
+  ];
+  $("cards").innerHTML = cardDefs.map(c=>{
+    if(c.signin) return `<div class="card"><h3>${c.h}</h3><button class="btn" style="margin:10px 0">Sign in securely</button><div class="big" style="font-size:90px;min-height:200px">🎁</div><div class="more">Create a free account</div></div>`;
+    const items = PRODUCTS.filter(p=>p.cat===c.cat).slice(0,4);
+    const body = c.four
+      ? `<div class="grid4">${items.map(p=>`<div onclick="openProduct(${p.id})"><div class="tile">${p.e}</div><span class="lbl">${p.t.split(/[—(|,]/)[0]}</span></div>`).join("")}</div>`
+      : `<div class="big" onclick="setCategory('${c.cat}')" style="cursor:pointer">${c.big}</div>`;
+    return `<div class="card"><h3>${c.h}</h3>${body}<div class="more" onclick="setCategory('${c.cat}')">See more</div></div>`;
+  }).join("");
+
+  $("deals").innerHTML = PRODUCTS.filter(p=>p.deal).map(p=>`
+    <div class="deal" onclick="openProduct(${p.id})">
+      <div class="tile">${p.e}</div>
+      <span class="badge">${off(p)}% off</span><span class="deal-txt">Limited time deal</span>
+      <div style="font-size:13px;margin-top:4px">${p.t.split(/[—(|,]/)[0]}</div>
+    </div>`).join("");
+
+  applyFilters(); renderCart();
+}
+
+function setCategory(c){
+  activeCat = c; $("searchCat").value = c;
+  document.querySelectorAll("#subnav a[data-cat]").forEach(a=>a.classList.toggle("active",a.dataset.cat===c));
+  applyFilters();
+  $("shop").scrollIntoView({behavior:"smooth"});
+}
+function resetFilters(){ $("searchInput").value=""; setCategory("all"); window.scrollTo({top:0,behavior:"smooth"}); }
+
+/* --- Product grid --- */
+function applyFilters(){
+  const q = $("searchInput").value.trim().toLowerCase();
+  let list = PRODUCTS.filter(p => (activeCat==="all"||p.cat===activeCat) && (!q || p.t.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q)));
+  const s = $("sort").value;
+  if(s==="low") list.sort((a,b)=>a.p-b.p);
+  if(s==="high") list.sort((a,b)=>b.p-a.p);
+  if(s==="rating") list.sort((a,b)=>b.r-a.r);
+  $("resultsTitle").textContent = q ? `Results for "${$("searchInput").value.trim()}"` : (activeCat==="all"?"All Products":activeCat);
+  $("resultsCount").textContent = `${list.length} item${list.length===1?"":"s"}`;
+  $("products").innerHTML = list.length ? list.map(p=>`
+    <div class="product">
+      <div class="img" onclick="openProduct(${p.id})">${p.e}</div>
+      <div class="title" onclick="openProduct(${p.id})">${p.t}</div>
+      <div><span class="stars">${stars(p.r)}</span><span class="reviews">${fmt(p.n)}</span></div>
+      ${p.deal?`<div><span class="badge" style="margin:0">Limited time deal</span></div>`:""}
+      <div>${priceHTML(p.p)} <span class="list-price">M.R.P:<s>₹${fmt(p.lp)}</s> (${off(p)}% off)</span></div>
+      ${p.prime?`<div class="prime"><b>✓</b>prime</div>`:""}
+      <div class="delivery">FREE delivery <b>${deliveryDate(p.prime?1:4)}</b></div>
+      <button class="btn" onclick="addToCart(${p.id})">Add to Cart</button>
+    </div>`).join("") : `<div class="empty">No results found. Try a different search or category.</div>`;
+}
+
+/* --- Product modal --- */
+function openProduct(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  $("modalBox").innerHTML = `
+    <button class="close" onclick="closeAll()" aria-label="Close">×</button>
+    <div class="bigimg">${p.e}</div>
+    <div>
+      <h2>${p.t}</h2>
+      <div style="margin-top:6px"><span style="font-size:14px">${p.r}</span> <span class="stars">${stars(p.r)}</span><span class="reviews">${fmt(p.n)} ratings</span></div>
+      <hr>
+      ${p.deal?`<span class="badge" style="margin:0 0 6px">Limited time deal</span><br>`:""}
+      <span style="color:var(--deal);font-size:26px;font-weight:300">-${off(p)}%</span> ${priceHTML(p.p)}
+      <div class="list-price">M.R.P.: <s>₹${fmt(p.lp)}</s> &nbsp;Inclusive of all taxes</div>
+      ${p.prime?`<div class="prime" style="margin-top:6px"><b>✓</b>prime</div>`:""}
+      <hr>
+      <div class="delivery">FREE delivery <b>${deliveryDate(p.prime?1:4)}</b>. Order within 5 hrs 12 mins.</div>
+      <div class="instock" style="font-size:18px;margin:6px 0">In stock</div>
+      <ul>
+        <li>Category: ${p.cat}</li>
+        <li>7 days Replacement · Free Delivery · Pay on Delivery</li>
+        <li>1 Year Manufacturer Warranty</li>
+        <li>Sold by Shopzon Retail and Fulfilled by Shopzon</li>
+      </ul>
+      <div class="modal-actions">
+        <button class="btn" onclick="addToCart(${p.id})">Add to Cart</button>
+        <button class="btn alt" onclick="addToCart(${p.id},true)">Buy Now</button>
+      </div>
+    </div>`;
+  $("modal").classList.add("show"); $("overlay").classList.add("show");
+}
+
+/* --- Cart --- */
+function save(){ localStorage.setItem("shopzon-cart", JSON.stringify(cart)); }
+function addToCart(id, buyNow){
+  cart[id] = (cart[id]||0) + 1; save(); renderCart();
+  if(buyNow){ $("modal").classList.remove("show"); openCart(); return; }
+  const t = $("toast"); t.classList.add("show"); clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove("show"),1600);
+}
+function changeQty(id,d){ cart[id] += d; if(cart[id] <= 0) delete cart[id]; save(); renderCart(); }
+function removeItem(id){ delete cart[id]; save(); renderCart(); }
+function renderCart(){
+  const ids = Object.keys(cart);
+  const count = ids.reduce((s,id)=>s+cart[id],0);
+  const total = ids.reduce((s,id)=>s+cart[id]*PRODUCTS.find(p=>p.id==id).p,0);
+  $("cartCount").textContent = count;
+  $("cartItems").innerHTML = ids.length ? ids.map(id=>{
+    const p = PRODUCTS.find(x=>x.id==id);
+    return `<div class="ci"><div class="tile">${p.e}</div><div class="info">
+      <div class="t">${p.t.split(/[—(|]/)[0]}</div>
+      <div class="p">₹${fmt(p.p)}</div><div class="instock">In stock</div>
+      <div class="qty"><button onclick="changeQty(${p.id},-1)" aria-label="Decrease">${cart[id]===1?"🗑":"−"}</button><span>${cart[id]}</span><button onclick="changeQty(${p.id},1)" aria-label="Increase">+</button></div>
+      <button class="del" onclick="removeItem(${p.id})">Delete</button></div></div>`;
+  }).join("") : `<div class="empty"><div style="font-size:70px">🛒</div><h3 style="margin:10px 0">Your Shopzon Cart is empty</h3><a href="#shop" onclick="closeAll()" style="color:var(--link)">Shop today's deals</a></div>`;
+  $("cartFoot").innerHTML = ids.length ? `
+    ${total>=499?`<div class="free-ship">✓ Your order is eligible for FREE Delivery.</div>`:`<div class="free-ship" style="color:#565959">Add ₹${fmt(499-total)} more for FREE Delivery.</div>`}
+    <div class="subtotal">Subtotal (${count} item${count===1?"":"s"}): <b>₹${fmt(total)}</b></div>
+    <button class="btn" onclick="checkout()">Proceed to Buy</button>` : "";
+}
+function openCart(){ $("drawer").classList.add("open"); $("overlay").classList.add("show"); }
+function closeAll(){ ["drawer"].forEach(i=>$(i).classList.remove("open")); $("modal").classList.remove("show"); $("overlay").classList.remove("show"); }
+function checkout(){
+  cart = {}; save(); renderCart();
+  $("cartItems").innerHTML = `<div class="empty"><div style="font-size:70px">✅</div><h3 style="margin:10px 0;color:#007600">Order placed, thank you!</h3><p>Confirmation will be sent to your email (demo).</p></div>`;
+}
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeAll(); });
+
+/* --- Hero carousel --- */
+let slide = 0; const N = 4; let timer;
+function moveSlide(d){ slide = (slide + d + N) % N; $("slides").style.transform = `translateX(-${slide*100}%)`; clearInterval(timer); timer = setInterval(()=>moveSlide(1),5000); }
+timer = setInterval(()=>moveSlide(1),5000);
+
+init();
+</script>
+</body>
+</html>
